@@ -11,6 +11,7 @@ import (
 	"bytes"
 	"flag"
 	"fmt"
+	logger "github.com/rs/zerolog/log"
 	"log"
 	"net/http"
 	"os"
@@ -73,8 +74,10 @@ type data struct {
 }
 
 func redirect(w http.ResponseWriter, req *http.Request) {
+	logger.Debug().Msgf("%s Request made to: %s", req.Method, req.URL, req.)
 	path := strings.TrimSuffix(req.URL.Path, "/")
 	if !strings.HasPrefix(path, importPath) {
+		logger.Debug().msgf("path doesn't have prefix, path: %s, importPath: %s", path, importPath)
 		http.NotFound(w, req)
 		return
 	}
@@ -92,6 +95,7 @@ func redirect(w http.ResponseWriter, req *http.Request) {
 	}
 
 	if part < *repoParts {
+		logger.Debug().msg("Too few paths")
 		http.NotFound(w, req)
 		return
 	}
@@ -118,5 +122,5 @@ func redirect(w http.ResponseWriter, req *http.Request) {
 	}
 	w.Write(buf.Bytes())
 
-	log.Printf("Redirecting %s -> %s", importRoot, repoURL)
+	logger.Info().msgf("Redirecting %s -> %s", importRoot, repoURL)
 }
